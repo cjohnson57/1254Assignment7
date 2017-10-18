@@ -154,13 +154,11 @@ bool Node<T>::remove(T *target, int (*defaultCompare)(T, T))
 			if (parentsLorR == 'L') //Is the parent's left child
 			{
 				parent->left = nullptr;
-				delete this;
 				return true;
 			}
 			else if (parentsLorR == 'R') //Is the parent's right child
 			{
 				parent->right = nullptr;
-				delete this;
 				return true;
 			}
 			else if (parentsLorR == 'N') //Is the root node
@@ -174,20 +172,21 @@ bool Node<T>::remove(T *target, int (*defaultCompare)(T, T))
 			if (parentsLorR == 'L') //Is the parent's left child
 			{
 				parent->left = left;
-				delete this;
+				left->parent = parent;
 				return true;
 			}
 			else if (parentsLorR == 'R') //Is the parent's right child
 			{
 				parent->right = left;
-				delete this;
+				left->parent = parent;
 				return true;
 			}
 			else if (parentsLorR == 'N') //Is the root node, in this situation there is only a root node and its left node
 			{
-				value = left->value;
-				delete left;
-				return true;
+				T *temp = left->value;
+				left->value = value;
+				value = temp;
+				return left->remove(target, defaultCompare);
 			}
 		}
 		else if (left == nullptr && right != nullptr) //Has right node but no left node
@@ -195,20 +194,21 @@ bool Node<T>::remove(T *target, int (*defaultCompare)(T, T))
 			if (parentsLorR == 'L') //Is the parent's left child
 			{
 				parent->left = right;
-				delete this;
+				right->parent = parent;
 				return true;
 			}
 			else if (parentsLorR == 'R') //Is the parent's right child
 			{
 				parent->right = right;
-				delete this;
+				right->parent = parent;
 				return true;
 			}
 			else if (parentsLorR == 'N') //Is the root node, in this situation there is only a root node and its right node
 			{
-				value = right->value;
-				delete right;
-				return true;
+				T *temp = right->value;
+				right->value = value;
+				value = temp;
+				return right->remove(target, defaultCompare);
 			}
 		}
 		else //Node has left node and right node
@@ -231,7 +231,7 @@ bool Node<T>::remove(T *target, int (*defaultCompare)(T, T))
 				predecessor->value = value;
 				value = temp;
 			}
-			return remove(target, defaultCompare);
+			return left->remove(target, defaultCompare);
 		}
 	}
 	else if (compare == -1) //target is less than current node
